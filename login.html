@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FGCFLIX - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-black via-zinc-900 to-black text-white flex items-center justify-center">
+  <div class="bg-zinc-900 p-10 rounded-3xl shadow-2xl w-full max-w-md fade-in">
+    <h1 class="text-3xl font-bold text-yellow-400 text-center mb-6">Login - FGCFLIX</h1>
+    <form id="loginForm" class="flex flex-col gap-4">
+      <input type="text" id="usuario" placeholder="Usuário" required class="p-3 rounded-xl bg-zinc-800 placeholder-gray-400 text-white">
+      <input type="password" id="senha" placeholder="Senha" required class="p-3 rounded-xl bg-zinc-800 placeholder-gray-400 text-white">
+      <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 rounded-xl transition-all">Entrar</button>
+    </form>
+    <div id="erroLogin" class="text-red-500 text-sm mt-4 hidden text-center">Usuário ou senha incorretos.</div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const erroLogin = document.getElementById("erroLogin");
+
+    loginForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const usuario = document.getElementById("usuario").value;
+      const senha = document.getElementById("senha").value;
+
+      if (usuario === "felipedev01" && senha === "felipedev02") {
+        window.location.href = "index.html";
+      } else {
+        erroLogin.classList.remove("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
