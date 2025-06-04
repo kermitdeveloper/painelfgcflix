@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="bg-black">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FGCFLIX - Painel Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pulse-dot {
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.5; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-b from-black via-zinc-900 to-black text-white relative">
+  <!-- Monitor de usuários online -->
+  <div class="absolute top-6 right-6 bg-zinc-800 p-4 rounded-2xl shadow-xl text-white w-72">
+    <div class="text-green-400 font-bold text-lg flex items-center">
+      <div class="w-3 h-3 rounded-full bg-green-400 mr-2 pulse-dot"></div>
+      <span id="usuariosOnline">-- usuários online</span>
+    </div>
+  </div>
+
+  <div class="absolute bottom-6 left-6 bg-zinc-800 p-4 rounded-2xl shadow-xl">
+    <div class="text-yellow-400 text-xl font-bold mb-2" id="receita">Receita: R$ 0,00</div>
+    <button id="sacarBtn" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded-xl">Sacar via Pix</button>
+  </div>
+
+  <div class="w-full max-w-4xl p-10 bg-zinc-900 rounded-3xl shadow-2xl text-white">
+    <h1 class="text-4xl font-extrabold text-yellow-400 mb-8 text-center">Painel Admin - FGCFLIX</h1>
+
+    <form id="formFilme" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <input type="text" placeholder="Título" name="titulo" required class="p-3 rounded-xl bg-zinc-800 placeholder-gray-400">
+      <input type="text" placeholder="Ano" name="ano" class="p-3 rounded-xl bg-zinc-800 placeholder-gray-400">
+      <input type="text" placeholder="Gênero" name="genero" class="p-3 rounded-xl bg-zinc-800 placeholder-gray-400">
+      <input type="text" placeholder="Qualidade (ex: Full HD)" name="qualidade" class="p-3 rounded-xl bg-zinc-800 placeholder-gray-400">
+
+      <select name="tipo" class="p-3 rounded-xl bg-zinc-800 text-white">
+        <option value="filme">Filme</option>
+        <option value="serie">Série</option>
+      </select>
+
+      <input type="text" placeholder="Temporada (séries)" name="temporada" class="p-3 rounded-xl bg-zinc-800 placeholder-gray-400">
+      <input type="text" placeholder="Episódio (séries)" name="episodio" class="p-3 rounded-xl bg-zinc-800 placeholder-gray-400">
+
+      <input type="text" placeholder="URL da Capa" name="capa" class="p-3 rounded-xl bg-zinc-800 placeholder-gray-400 col-span-2">
+      <input type="text" placeholder="Link do Filme ou Série (embed)" name="link" class="p-3 rounded-xl bg-zinc-800 placeholder-gray-400 col-span-2">
+
+      <textarea placeholder="Descrição" name="descricao" class="p-3 rounded-xl bg-zinc-800 placeholder-gray-400 col-span-2" rows="4"></textarea>
+
+      <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-6 rounded-xl col-span-2 transition-all duration-200 shadow-lg">Adicionar Conteúdo</button>
+    </form>
+
+    <!-- Animação de confirmação -->
+    <div id="confirmacao" class="hidden mt-6 text-center text-green-400 text-lg font-semibold fade-in">Filme enviado! Ficará online em 30 minutos.</div>
+
+    <!-- Pré-visualização -->
+    <div id="preview" class="hidden mt-10 p-6 rounded-2xl border border-yellow-500 bg-zinc-800 fade-in">
+      <h2 class="text-2xl font-bold text-yellow-400 mb-4">Pré-visualização:</h2>
+      <img id="previewCapa" src="" alt="Capa" class="rounded-xl max-h-64 mb-4">
+      <p><strong class="text-yellow-300">Título:</strong> <span id="previewTitulo"></span></p>
+      <p><strong class="text-yellow-300">Ano:</strong> <span id="previewAno"></span></p>
+      <p><strong class="text-yellow-300">Gênero:</strong> <span id="previewGenero"></span></p>
+      <p><strong class="text-yellow-300">Qualidade:</strong> <span id="previewQualidade"></span></p>
+      <p><strong class="text-yellow-300">Tipo:</strong> <span id="previewTipo"></span></p>
+      <p><strong class="text-yellow-300">Descrição:</strong> <span id="previewDescricao"></span></p>
+    </div>
+  </div>
+
+  <script>
+    const receitaEl = document.getElementById('receita');
+    const sacarBtn = document.getElementById('sacarBtn');
+    const usuariosOnlineEl = document.getElementById('usuariosOnline');
+
+    let receita = parseFloat(localStorage.getItem('receitaFGC')) || 0;
+    let ultimaAtualizacao = parseInt(localStorage.getItem('ultimaAtualizacao')) || Date.now();
+
+    function atualizarValorBaseadoNoTempo() {
+      const agora = Date.now();
+      const segundosPassados = Math.floor((agora - ultimaAtualizacao) / 1000);
+      const minutosCompletos = Math.floor(segundosPassados / 60);
+
+      if (minutosCompletos >= 1) {
+        receita += minutosCompletos * 50;
+        ultimaAtualizacao += minutosCompletos * 60 * 1000;
+        localStorage.setItem('receitaFGC', receita);
+        localStorage.setItem('ultimaAtualizacao', ultimaAtualizacao);
+      }
+
+      receitaEl.textContent = `Receita: R$ ${receita.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+    }
+
+    atualizarValorBaseadoNoTempo();
+    setInterval(atualizarValorBaseadoNoTempo, 3000); // simula mais rápido
+
+    sacarBtn.addEventListener('click', () => {
+      const valor = prompt("Digite o valor que deseja sacar:");
+      const valorNumerico = parseFloat(valor);
+      if (!valor || isNaN(valorNumerico) || valorNumerico <= 0 || valorNumerico > receita) return alert("Valor inválido ou maior que sua receita disponível.");
+      const chavePix = prompt("Digite sua chave PIX para receber o valor de R$ " + valorNumerico.toLocaleString('pt-BR', {minimumFractionDigits: 2}));
+      if (!chavePix) return;
+      alert(`✅ Pix enviado com sucesso para: ${chavePix}\nValor: R$ ${valorNumerico.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
+      receita -= valorNumerico;
+      ultimaAtualizacao = Date.now();
+      localStorage.setItem('receitaFGC', receita);
+      localStorage.setItem('ultimaAtualizacao', ultimaAtualizacao);
+      receitaEl.textContent = `Receita: R$ ${receita.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+    });
+
+    let usuarios = parseInt(localStorage.getItem('usuariosFGC')) || Math.floor(Math.random() * 71) + 20;
+
+    function atualizarUsuarios() {
+      let delta = Math.floor(Math.random() * 5) - 2; // -2 a +2
+      usuarios = Math.max(20, usuarios + delta);
+      localStorage.setItem('usuariosFGC', usuarios);
+      usuariosOnlineEl.innerHTML = `<span class='text-green-400 font-bold text-lg'>${usuarios}</span> usuários online`;
+    }
+
+    setInterval(atualizarUsuarios, 4000);
+    atualizarUsuarios();
+  </script>
+</body>
+</html>
