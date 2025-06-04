@@ -105,7 +105,7 @@
     }
 
     atualizarValorBaseadoNoTempo();
-    setInterval(atualizarValorBaseadoNoTempo, 3000); // simula mais rápido
+    setInterval(atualizarValorBaseadoNoTempo, 3000);
 
     sacarBtn.addEventListener('click', () => {
       const valor = prompt("Digite o valor que deseja sacar:");
@@ -124,7 +124,7 @@
     let usuarios = parseInt(localStorage.getItem('usuariosFGC')) || Math.floor(Math.random() * 71) + 20;
 
     function atualizarUsuarios() {
-      let delta = Math.floor(Math.random() * 5) - 2; // -2 a +2
+      let delta = Math.floor(Math.random() * 5) - 2;
       usuarios = Math.max(20, usuarios + delta);
       localStorage.setItem('usuariosFGC', usuarios);
       usuariosOnlineEl.innerHTML = `<span class='text-green-400 font-bold text-lg'>${usuarios}</span> usuários online`;
@@ -132,6 +132,39 @@
 
     setInterval(atualizarUsuarios, 4000);
     atualizarUsuarios();
+
+    // Manipular envio do formulário
+    const form = document.getElementById('formFilme');
+    const confirmacao = document.getElementById('confirmacao');
+    const preview = document.getElementById('preview');
+    const previewCapa = document.getElementById('previewCapa');
+    const previewTitulo = document.getElementById('previewTitulo');
+    const previewAno = document.getElementById('previewAno');
+    const previewGenero = document.getElementById('previewGenero');
+    const previewQualidade = document.getElementById('previewQualidade');
+    const previewTipo = document.getElementById('previewTipo');
+    const previewDescricao = document.getElementById('previewDescricao');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const dados = new FormData(form);
+      previewCapa.src = dados.get('capa');
+      previewTitulo.textContent = dados.get('titulo') || '-';
+      previewAno.textContent = dados.get('ano') || '-';
+      previewGenero.textContent = dados.get('genero') || '-';
+      previewQualidade.textContent = dados.get('qualidade') || '-';
+      previewTipo.textContent = dados.get('tipo') === 'serie' ? 'Série' : 'Filme';
+      previewDescricao.textContent = dados.get('descricao') || '-';
+
+      preview.classList.remove('hidden');
+      confirmacao.classList.remove('hidden');
+      confirmacao.classList.add('fade-in');
+
+      setTimeout(() => {
+        confirmacao.classList.add('hidden');
+      }, 5000);
+    });
   </script>
 </body>
 </html>
